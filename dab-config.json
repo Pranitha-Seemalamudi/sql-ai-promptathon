@@ -1,0 +1,280 @@
+{
+  "$schema": "https://github.com/Azure/data-api-builder/releases/download/v2.0.8/dab.draft.schema.json",
+  "data-source": {
+    "database-type": "mssql",
+    "connection-string": "@env('MSSQL_CONNECTION_STRING')"
+  },
+  "runtime": {
+    "rest": {
+      "enabled": true,
+      "path": "/api",
+      "request-body-strict": false
+    },
+    "graphql": {
+      "enabled": true,
+      "path": "/graphql",
+      "allow-introspection": true
+    },
+    "mcp": {
+      "enabled": true,
+      "path": "/mcp",
+      "dml-tools": {
+        "describe-entities": true,
+        "create-record": false,
+        "read-records": true,
+        "update-record": false,
+        "delete-record": false,
+        "execute-entity": true,
+        "aggregate-records": {
+          "enabled": true,
+          "query-timeout": 30
+        }
+      }
+    },
+    "host": {
+      "cors": {
+        "origins": [],
+        "allow-credentials": false
+      },
+      "authentication": {
+        "provider": "Unauthenticated"
+      },
+      "mode": "development"
+    },
+    "telemetry": {
+      "open-telemetry": {
+        "enabled": true,
+        "endpoint": "@env('OTEL_EXPORTER_OTLP_ENDPOINT')",
+        "headers": "@env('OTEL_EXPORTER_OTLP_HEADERS')",
+        "service-name": "@env('OTEL_SERVICE_NAME')"
+      }
+    },
+    "health": {
+      "enabled": true,
+      "roles": []
+    }
+  },
+  "autoentities": {},
+  "entities": {
+    "Products": {
+      "description": "Enriched Zava product catalog. Includes B2C SKUs and B2B products with pricing, category, type, channel, launch date, and notes.",
+      "source": {
+        "object": "dbo.Products",
+        "type": "table"
+      },
+      "fields": [
+        { "name": "ProductId", "description": "Unique product identifier.", "primary-key": true },
+        { "name": "SKU", "description": "B2C SKU code. Null for B2B products.", "primary-key": false },
+        { "name": "ProductName", "description": "Product display name.", "primary-key": false },
+        { "name": "Category", "description": "Product category or business grouping.", "primary-key": false },
+        { "name": "ProductType", "description": "Product type such as Pants, LongSleeveTop, SmartCleat, or SystemsJersey.", "primary-key": false },
+        { "name": "BusinessLine", "description": "Business line, such as B2C or B2B.", "primary-key": false },
+        { "name": "Channel", "description": "Sales channel for the product.", "primary-key": false },
+        { "name": "MSRP", "description": "Suggested retail price for B2C products.", "primary-key": false },
+        { "name": "Cost", "description": "Product cost or B2B base cost.", "primary-key": false },
+        { "name": "AvailableFrom", "description": "Date the product became available.", "primary-key": false }
+      ],
+      "graphql": { "enabled": true, "type": { "singular": "Product", "plural": "Products" } },
+      "rest": { "enabled": true },
+      "permissions": [ { "role": "anonymous", "actions": [ { "action": "*" } ] } ]
+    },
+    "Customers": {
+      "description": "Registered Zava B2C customers. Anonymous guest and in-store buyers are represented by null CustomerId values on orders.",
+      "source": {
+        "object": "dbo.Customers",
+        "type": "table"
+      },
+      "fields": [
+        { "name": "CustomerId", "description": "Unique registered customer identifier.", "primary-key": true },
+        { "name": "FullName", "description": "Customer full name.", "primary-key": false },
+        { "name": "Language", "description": "Native language from the approved source data.", "primary-key": false },
+        { "name": "ServiceLanguage", "description": "Service language used for support and generated content.", "primary-key": false },
+        { "name": "Country", "description": "Customer country code.", "primary-key": false },
+        { "name": "PreferredChannel", "description": "Preferred customer channel.", "primary-key": false },
+        { "name": "RegistrationDate", "description": "Date the customer registered.", "primary-key": false },
+        { "name": "CustomerSegment", "description": "Customer segment label.", "primary-key": false }
+      ],
+      "graphql": { "enabled": true, "type": { "singular": "Customer", "plural": "Customers" } },
+      "rest": { "enabled": true },
+      "permissions": [ { "role": "anonymous", "actions": [ { "action": "*" } ] } ]
+    },
+    "Employees": {
+      "description": "Zava employees enriched with facility context for support and operations questions.",
+      "source": {
+        "object": "dbo.Employees",
+        "type": "table"
+      },
+      "fields": [
+        { "name": "EmployeeId", "description": "Unique employee identifier.", "primary-key": true },
+        { "name": "FullName", "description": "Employee full name.", "primary-key": false },
+        { "name": "Department", "description": "Department name.", "primary-key": false },
+        { "name": "Role", "description": "Employee role.", "primary-key": false },
+        { "name": "FacilityName", "description": "Enriched facility name.", "primary-key": false },
+        { "name": "FacilityCountry", "description": "Enriched facility country.", "primary-key": false },
+        { "name": "HireDate", "description": "Employee hire date.", "primary-key": false }
+      ],
+      "graphql": { "enabled": true, "type": { "singular": "Employee", "plural": "Employees" } },
+      "rest": { "enabled": true },
+      "permissions": [ { "role": "anonymous", "actions": [ { "action": "*" } ] } ]
+    },
+    "SalesOrders": {
+      "description": "Unified B2C and B2B sales order headers enriched with customer, client, store, facility, promotion, and total amount context.",
+      "source": {
+        "object": "dbo.SalesOrders",
+        "type": "table"
+      },
+      "fields": [
+        { "name": "OrderId", "description": "Unique sales order identifier.", "primary-key": true },
+        { "name": "OrderType", "description": "B2C or B2B.", "primary-key": false },
+        { "name": "CustomerId", "description": "Related registered customer identifier when known.", "primary-key": false },
+        { "name": "ClientId", "description": "Related B2B client identifier when applicable.", "primary-key": false },
+        { "name": "StoreId", "description": "Related store identifier when applicable.", "primary-key": false },
+        { "name": "CustomerName", "description": "Registered B2C customer name when known.", "primary-key": false },
+        { "name": "ClientName", "description": "B2B client organization when applicable.", "primary-key": false },
+        { "name": "OrderDate", "description": "Order timestamp.", "primary-key": false },
+        { "name": "Channel", "description": "Order channel, including online, retail store, or B2B.", "primary-key": false },
+        { "name": "FulfilmentFacilityId", "description": "Related fulfilment facility identifier.", "primary-key": false },
+        { "name": "FulfilmentFacilityName", "description": "Enriched fulfilment facility name.", "primary-key": false },
+        { "name": "Status", "description": "Order status.", "primary-key": false },
+        { "name": "TotalAmount", "description": "Final order total.", "primary-key": false },
+        { "name": "PromotionId", "description": "Related promotion identifier when present.", "primary-key": false },
+        { "name": "PromotionName", "description": "Enriched promotion name when present.", "primary-key": false }
+      ],
+      "graphql": { "enabled": true, "type": { "singular": "SalesOrder", "plural": "SalesOrders" } },
+      "rest": { "enabled": true },
+      "permissions": [ { "role": "anonymous", "actions": [ { "action": "*" } ] } ]
+    },
+    "SalesOrderLines": {
+      "description": "Unified B2C and B2B sales order lines enriched with product name, category, and type.",
+      "source": {
+        "object": "dbo.SalesOrderLines",
+        "type": "table"
+      },
+      "fields": [
+        { "name": "OrderLineId", "description": "Unique sales order line identifier.", "primary-key": true },
+        { "name": "OrderId", "description": "Parent sales order identifier.", "primary-key": false },
+        { "name": "ProductId", "description": "Related product identifier.", "primary-key": false },
+        { "name": "OrderType", "description": "B2C or B2B.", "primary-key": false },
+        { "name": "SKU", "description": "B2C SKU when applicable.", "primary-key": false },
+        { "name": "ProductName", "description": "Enriched product name.", "primary-key": false },
+        { "name": "ProductCategory", "description": "Enriched product category.", "primary-key": false },
+        { "name": "ProductType", "description": "Product type.", "primary-key": false },
+        { "name": "Quantity", "description": "Quantity ordered.", "primary-key": false },
+        { "name": "UnitPrice", "description": "Unit price.", "primary-key": false },
+        { "name": "LineTotal", "description": "Line total after discount.", "primary-key": false }
+      ],
+      "graphql": { "enabled": true, "type": { "singular": "SalesOrderLine", "plural": "SalesOrderLines" } },
+      "rest": { "enabled": true },
+      "permissions": [ { "role": "anonymous", "actions": [ { "action": "*" } ] } ]
+    },
+    "SupportTickets": {
+      "description": "Support ticket headers enriched with customer or B2B client context and assigned employee department.",
+      "source": {
+        "object": "dbo.SupportTickets",
+        "type": "table"
+      },
+      "fields": [
+        { "name": "TicketId", "description": "Unique support ticket identifier.", "primary-key": true },
+        { "name": "CustomerId", "description": "Related registered customer identifier when applicable.", "primary-key": false },
+        { "name": "ClientId", "description": "Related B2B client identifier when applicable.", "primary-key": false },
+        { "name": "CustomerName", "description": "Registered customer name when applicable.", "primary-key": false },
+        { "name": "ClientName", "description": "B2B client organization when applicable.", "primary-key": false },
+        { "name": "Category", "description": "Support category.", "primary-key": false },
+        { "name": "Priority", "description": "Ticket priority.", "primary-key": false },
+        { "name": "AssignedToEmployeeId", "description": "Related assigned employee identifier.", "primary-key": false },
+        { "name": "AssignedToDisplayName", "description": "Assigned support employee.", "primary-key": false },
+        { "name": "Status", "description": "Ticket status.", "primary-key": false },
+        { "name": "ResolutionTimeHours", "description": "Resolution time in hours.", "primary-key": false },
+        { "name": "SatisfactionScore", "description": "Customer satisfaction score when present.", "primary-key": false },
+        { "name": "RelatedSKU", "description": "Related product SKU when the ticket concerns a specific product.", "primary-key": false },
+        { "name": "RelatedOrderId", "description": "Related sales order identifier when the ticket concerns a specific order.", "primary-key": false }
+      ],
+      "graphql": { "enabled": true, "type": { "singular": "SupportTicket", "plural": "SupportTickets" } },
+      "rest": { "enabled": true },
+      "permissions": [ { "role": "anonymous", "actions": [ { "action": "*" } ] } ]
+    },
+    "SupportChats": {
+      "description": "LLM-generated support chat transcripts. Each row stores one transcript with ticket context, agent/customer names, and messages as JSON.",
+      "source": {
+        "object": "dbo.SupportChats",
+        "type": "table"
+      },
+      "fields": [
+        { "name": "TranscriptId", "description": "Unique support chat transcript identifier.", "primary-key": true },
+        { "name": "TicketId", "description": "Related support ticket identifier.", "primary-key": false },
+        { "name": "CustomerId", "description": "Related registered customer identifier when known.", "primary-key": false },
+        { "name": "CustomerName", "description": "Customer display name.", "primary-key": false },
+        { "name": "Language", "description": "Chat language.", "primary-key": false },
+        { "name": "Scenario", "description": "Chat scenario such as Return, Complaint, Billing, or ProductQuestion.", "primary-key": false },
+        { "name": "AgentEmployeeId", "description": "Related support agent employee identifier.", "primary-key": false },
+        { "name": "AgentName", "description": "Support agent display name.", "primary-key": false },
+        { "name": "RelatedOrderId", "description": "Related sales order identifier when present.", "primary-key": false },
+        { "name": "RelatedSKU", "description": "Related product SKU when present.", "primary-key": false },
+        { "name": "Resolution", "description": "Chat resolution.", "primary-key": false },
+        { "name": "MessageCount", "description": "Number of chat messages.", "primary-key": false },
+        { "name": "MessagesJson", "description": "Full chat messages JSON array.", "primary-key": false }
+      ],
+      "graphql": { "enabled": true, "type": { "singular": "SupportChat", "plural": "SupportChats" } },
+      "rest": { "enabled": true },
+      "permissions": [ { "role": "anonymous", "actions": [ { "action": "*" } ] } ]
+    },
+    "Docs": {
+      "description": "Searchable document table built from real Zava LLM reviews and support chats with precomputed embeddings.",
+      "source": {
+        "object": "dbo.Docs",
+        "type": "table"
+      },
+      "fields": [
+        { "name": "DocId", "description": "Unique document identifier.", "primary-key": true },
+        { "name": "SourceType", "description": "Original source type: Review or SupportChat.", "primary-key": false },
+        { "name": "SourceId", "description": "Original review id or chat transcript id.", "primary-key": false },
+        { "name": "RelatedCustomerId", "description": "Related customer identifier when present.", "primary-key": false },
+        { "name": "RelatedOrderId", "description": "Related sales order identifier when present.", "primary-key": false },
+        { "name": "RelatedTicketId", "description": "Related support ticket identifier when present.", "primary-key": false },
+        { "name": "RelatedSKU", "description": "Related product SKU when present.", "primary-key": false },
+        { "name": "Title", "description": "Document title.", "primary-key": false },
+        { "name": "Body", "description": "Review body or full chat transcript text.", "primary-key": false },
+        { "name": "Category", "description": "Customer Review or Support Chat.", "primary-key": false },
+        { "name": "TagsJson", "description": "JSON tags describing language, rating, SKU, scenario, and resolution.", "primary-key": false },
+        { "name": "Embedding", "description": "Precomputed 1536-dimension vector for similarity search.", "primary-key": false }
+      ],
+      "graphql": { "enabled": true, "type": { "singular": "Doc", "plural": "Docs" } },
+      "rest": { "enabled": true },
+      "permissions": [ { "role": "anonymous", "actions": [ { "action": "*" } ] } ]
+    },
+    "FindSimilarDocsByDocId": {
+      "description": "Return documents most similar to an existing document id using cosine distance over precomputed vectors.",
+      "source": {
+        "object": "dbo.FindSimilarDocsByDocId",
+        "type": "stored-procedure"
+      },
+      "graphql": {
+        "enabled": true,
+        "operation": "mutation",
+        "type": {
+          "singular": "FindSimilarDocsByDocId",
+          "plural": "FindSimilarDocsByDocIds"
+        }
+      },
+      "rest": {
+        "enabled": true,
+        "methods": [
+          "post"
+        ]
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "execute"
+            }
+          ]
+        }
+      ],
+      "mcp": {
+        "custom-tool": true
+      }
+    }
+  }
+}

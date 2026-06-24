@@ -1,0 +1,32 @@
+{
+  "name": "SQL AI Promptathon",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/sql-ai-promptathon",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "forwardPorts": [1433],
+  "portsAttributes": {
+    "1433": {
+      "label": "SQL Server 2025",
+      "onAutoForward": "silent"
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.13",
+      "installTools": false
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot-chat",
+        "ms-mssql.mssql",
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.datawrangler",
+        "mechatroner.rainbow-csv"
+      ]
+    }
+  }
+}

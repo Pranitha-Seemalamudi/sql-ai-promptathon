@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    command: sleep infinity
+    volumes:
+      - ..:/workspaces/sql-ai-promptathon
+    environment:
+      DOTNET_ROLL_FORWARD: "Major"
+      MSSQL_CONNECTION_STRING: "Server=sql,1433;Database=PromptathonDb;User Id=sa;Password=Promptathon!2026;TrustServerCertificate=True"
+      MSSQL_SA_PASSWORD: "Promptathon!2026"
+    depends_on:
+      - sql
+
+  sql:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Promptathon!2026"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-data:/var/opt/mssql
+      - ..:/workspaces/sql-ai-promptathon:ro
+
+volumes:
+  sql-data:

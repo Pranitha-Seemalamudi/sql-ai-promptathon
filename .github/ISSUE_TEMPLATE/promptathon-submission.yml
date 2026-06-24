@@ -1,0 +1,59 @@
+name: Promptathon submission
+description: Submit your Promptathon work as a GitHub Issue.
+title: "[Submission]: "
+labels:
+  - promptathon-submission
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing your Promptathon work. Complete each section so reviewers can understand the goal, process, evidence, and impact of your solution.
+  - type: textarea
+    id: mission-open-goal
+    attributes:
+      label: Mission/open goal
+      description: What mission did you choose, or what open-ended goal did you set for the agent?
+      placeholder: Describe the problem, scenario, dataset, or business question you asked the agent to solve.
+    validations:
+      required: true
+  - type: input
+    id: harness-and-model
+    attributes:
+      label: Harness and model
+      description: Which harness did you use, and which model powered it?
+      placeholder: "Example: GitHub Copilot with GPT-5.5"
+    validations:
+      required: true
+  - type: textarea
+    id: turn-by-turn-journey
+    attributes:
+      label: Turn-by-turn journey
+      description: Summarize the important prompts, agent actions, SQL interactions, decisions, and iterations.
+      placeholder: |
+        1. Prompt:
+           Agent response or action:
+           Result:
+        2. Prompt:
+           Agent response or action:
+           Result:
+    validations:
+      required: true
+  - type: checkboxes
+    id: completion
+    attributes:
+      label: Completion
+      description: Did the agent complete the mission or open-ended goal?
+      options:
+        - label: Yes, the agent completed the mission or goal.
+          value: yes
+        - label: No, the agent did not complete the mission or goal.
+          value: no
+  - type: textarea
+    id: bonus-work
+    attributes:
+      label: Bonus work
+      description: Did you go over and beyond? Share any extra work, optimizations, or enhancements you implemented.
+      placeholder: Describe any bonus features, improvements, or additional work you completed beyond the core mission.
+    validations:
+      required: false
+    
